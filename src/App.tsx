@@ -3,6 +3,8 @@ import { useState } from "react"
 type Todo = {
   readonly id: number
   value: string
+  checked: boolean
+  removed: boolean
 }
 
 export const App = () => {
@@ -25,12 +27,38 @@ export const App = () => {
     })
   }
 
+  const handleCheck = (id: number, checked: boolean) => {
+    setTodos((todos) => {
+      const newTodos = todos.map((todo) => {
+        if (todo.id == id) {
+          return {...todo, checked}
+        }
+        return todo
+      })
+      return newTodos
+    })
+  }
+
+  const handleRemove = (id: number, removed: boolean) => {
+    setTodos((todos) => {
+      const newTodos = todos.map((todo) => {
+        if (todo.id == id) {
+          return {...todo, removed}
+        }
+        return todo
+      })
+      return newTodos
+    })
+  }
+
   const handleSubmit = () => {
     if (!text) return
 
     const newTodo: Todo = {
       id: new Date().getTime(),
       value: text,
+      checked: false,
+      removed: false,
     }
     setTodos((todos) => [newTodo, ...todos])
     setText('')
@@ -49,7 +77,19 @@ export const App = () => {
         {todos.map((todo) => {
           return (
             <li key={todo.id}>
-              <input type="text" value={todo.value} onChange={(e) => handleEdit(todo.id, e.target.value)} />
+              <input
+                type="checkbox"
+                checked={todo.checked}
+                disabled={todo.removed}
+                onChange={() => handleCheck(todo.id, !todo.checked)}
+              />
+              <input
+                type="text"
+                disabled={todo.checked || todo.removed}
+                value={todo.value}
+                onChange={(e) => handleEdit(todo.id, e.target.value)}
+              />
+              <button onClick={() => handleRemove(todo.id, !todo.removed)}>{todo.removed ? '復元' : '削除'}</button>
             </li>
             )
         })}
