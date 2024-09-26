@@ -1,13 +1,6 @@
-import { useState } from "react"
-
-type Todo = {
-  readonly id: number
-  value: string
-  checked: boolean
-  removed: boolean
-}
-
-type Filter = 'all' | 'checked' | 'unchecked' | 'removed'
+import localforage from "localforage"
+import { useEffect, useState } from "react"
+import { isTodos } from './lib/isTodos'
 
 export const App = () => {
   const [text, setText] = useState('')
@@ -70,6 +63,18 @@ export const App = () => {
         return todo
     }
   })
+
+  // 第2引数が空配列のときはマウント時に実行される
+  useEffect(() => {
+    localforage
+      .getItem('todo-20240101')
+      .then((values) => isTodos(values) && setTodos(values))
+  }, [])
+
+  // 第2引数の配列のtodosが更新されたら実行される
+  useEffect(() => {
+    localforage.setItem('todo-20240101', todos)
+  }, [todos])
 
   return (
     <div>
